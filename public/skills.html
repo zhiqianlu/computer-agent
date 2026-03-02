@@ -69,7 +69,7 @@
         </div>
         
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-primary" onclick="refreshSkills()">
+          <button class="btn btn-primary" onclick="refreshSkills(event)">
             <span>🔄</span> 刷新技能
           </button>
           <button class="btn btn-secondary" onclick="testSkillMatch()">
@@ -209,7 +209,7 @@
       displaySkills(filtered);
     }
 
-    async function refreshSkills() {
+    async function refreshSkills(event) {
       const btn = event.target;
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> 刷新中...';

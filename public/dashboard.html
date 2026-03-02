@@ -110,7 +110,7 @@
             <a href="security.html" class="btn btn-secondary" style="justify-content: center;">
               <span>⚙️</span> 安全设置
             </a>
-            <button class="btn btn-secondary" onclick="refreshDashboard()" style="justify-content: center;">
+            <button class="btn btn-secondary" onclick="refreshDashboard(event)" style="justify-content: center;">
               <span>🔄</span> 刷新数据
             </button>
           </div>
@@ -315,7 +315,7 @@
       }
     }
 
-    async function refreshDashboard() {
+    async function refreshDashboard(event) {
       const btn = event.target;
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> 刷新中...';
