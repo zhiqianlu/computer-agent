@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技能管理 - Computer Agent</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>🖥️ Computer Agent</h1>
+        <p>AI 驱动的电脑控制</p>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item">
+          <span class="icon">📊</span>
+          <span>仪表板</span>
+        </a>
+        <a href="task.html" class="nav-item">
+          <span class="icon">📝</span>
+          <span>任务控制</span>
+        </a>
+        <a href="skills.html" class="nav-item">
+          <span class="icon">🎯</span>
+          <span>技能管理</span>
+        </a>
+        <a href="security.html" class="nav-item">
+          <span class="icon">🔒</span>
+          <span>安全设置</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <span class="icon">📜</span>
+          <span>历史记录</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>🎯 技能管理</h1>
+        <p>查看和管理 AI 可用的技能集</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-3">
+        <div class="panel stat-card">
+          <div class="value" id="totalSkills">0</div>
+          <div class="label">总技能数</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="activeSkills">0</div>
+          <div class="label">激活技能</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="skillCategories">0</div>
+          <div class="label">技能类别</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">⚡</span> 快速操作</h2>
+        </div>
+        
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="refreshSkills()">
+            <span>🔄</span> 刷新技能
+          </button>
+          <button class="btn btn-secondary" onclick="testSkillMatch()">
+            <span>🧪</span> 测试匹配
+          </button>
+          <button class="btn btn-secondary" onclick="showSkillDetails()">
+            <span>📋</span> 查看详情
+          </button>
+        </div>
+      </div>
+
+      <!-- Skills List -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">📚</span> 技能列表</h2>
+          <input type="search" id="skillSearch" placeholder="搜索技能..." 
+                 style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: var(--text-primary);"
+                 oninput="filterSkills()">
+        </div>
+        
+        <div id="skillsList">
+          <div class="empty-state">
+            <div class="icon">🎯</div>
+            <h3>加载中...</h3>
+            <p>正在加载技能列表</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Skill Detail Modal -->
+  <div id="skillDetailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalSkillName">技能详情</h2>
+        <button class="modal-close" onclick="modal.close('skillDetailModal')">×</button>
+      </div>
+      <div id="modalSkillContent">
+        <!-- Content will be loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Match Modal -->
+  <div id="testMatchModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🧪 测试技能匹配</h2>
+        <button class="modal-close" onclick="modal.close('testMatchModal')">×</button>
+      </div>
+      <div class="input-group">
+        <label>任务描述</label>
+        <textarea id="testTaskInput" placeholder="输入任务描述以测试匹配的技能..." style="min-height: 100px;"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="performMatch()">
+        <span>🔍</span> 测试匹配
+      </button>
+      <div id="matchResults" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let allSkills = [];
+
+    async function loadSkills() {
+      try {
+        const data = await api.getSkills();
+        allSkills = data.skills || [];
+        
+        document.getElementById('totalSkills').textContent = data.count || 0;
+        document.getElementById('activeSkills').textContent = data.count || 0;
+        document.getElementById('skillCategories').textContent = new Set(allSkills.map(s => s.category || '其他')).size;
+        
+        displaySkills(allSkills);
+      } catch (error) {
+        console.error('Failed to load skills:', error);
+        document.getElementById('skillsList').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">❌</div>
+            <h3>加载失败</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function displaySkills(skills) {
+      const container = document.getElementById('skillsList');
+      
+      if (skills.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🎯</div>
+            <h3>暂无技能</h3>
+            <p>系统中还没有加载任何技能</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>描述</th>
+              <th>路径</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${skills.map(skill => `
+              <tr>
+                <td><strong>${skill.name || '未命名'}</strong></td>
+                <td>${skill.description || '无描述'}</td>
+                <td style="font-size: 0.85rem; color: var(--text-secondary);">${skill.path || '--'}</td>
+                <td>
+                  <button class="btn btn-sm btn-secondary" onclick="viewSkillDetail('${skill.name}')">
+                    查看
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function filterSkills() {
+      const query = document.getElementById('skillSearch').value.toLowerCase();
+      const filtered = allSkills.filter(skill => 
+        (skill.name || '').toLowerCase().includes(query) ||
+        (skill.description || '').toLowerCase().includes(query)
+      );
+      displaySkills(filtered);
+    }
+
+    async function refreshSkills() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> 刷新中...';
+      
+      try {
+        await api.refreshSkills();
+        await loadSkills();
+        utils.showNotification('技能已刷新', 'success');
+      } catch (error) {
+        utils.showNotification('刷新失败: ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔄</span> 刷新技能';
+      }
+    }
+
+    async function viewSkillDetail(name) {
+      try {
+        const skill = await api.getSkill(name);
+        document.getElementById('modalSkillName').textContent = skill.name || '未命名技能';
+        document.getElementById('modalSkillContent').innerHTML = `
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-secondary);">描述：</strong>
+            <p style="margin-top: 8px;">${skill.description || '无描述'}</p>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-secondary);">路径：</strong>
+            <p style="margin-top: 8px; font-family: monospace; font-size: 0.9rem;">${skill.path || '--'}</p>
+          </div>
+          ${skill.content ? `
+            <div style="margin-bottom: 16px;">
+              <strong style="color: var(--text-secondary);">内容：</strong>
+              <div class="code-block" style="margin-top: 8px; max-height: 400px; overflow-y: auto;">
+                <pre style="margin: 0; white-space: pre-wrap;">${skill.content}</pre>
+              </div>
+            </div>
+          ` : ''}
+        `;
+        modal.open('skillDetailModal');
+      } catch (error) {
+        utils.showNotification('加载技能详情失败: ' + error.message, 'error');
+      }
+    }
+
+    function testSkillMatch() {
+      modal.open('testMatchModal');
+    }
+
+    function showSkillDetails() {
+      if (allSkills.length > 0) {
+        viewSkillDetail(allSkills[0].name);
+      } else {
+        utils.showNotification('没有可用的技能', 'info');
+      }
+    }
+
+    async function performMatch() {
+      const task = document.getElementById('testTaskInput').value.trim();
+      if (!task) {
+        utils.showNotification('请输入任务描述', 'error');
+        return;
+      }
+
+      try {
+        const result = await api.matchSkills(task);
+        const resultsDiv = document.getElementById('matchResults');
+        
+        if (result.matchedCount === 0) {
+          resultsDiv.innerHTML = `
+            <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+              <p>未找到匹配的技能</p>
+            </div>
+          `;
+        } else {
+          resultsDiv.innerHTML = `
+            <h3 style="margin-bottom: 12px;">匹配结果 (${result.matchedCount} 个)</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>技能名称</th>
+                  <th>描述</th>
+                  <th>匹配分数</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${result.matches.map(match => `
+                  <tr>
+                    <td><strong>${match.name}</strong></td>
+                    <td>${match.description}</td>
+                    <td>
+                      <span class="status-badge complete">
+                        ${match.matchScore ? match.matchScore.toFixed(2) : 'N/A'}
+                      </span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+      } catch (error) {
+        utils.showNotification('匹配测试失败: ' + error.message, 'error');
+      }
+    }
+
+    // Initialize
+    loadSkills();
+  </script>
+</body>
+</html>
