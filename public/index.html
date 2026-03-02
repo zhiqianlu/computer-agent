@@ -4,254 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Computer Agent - AI 电脑控制</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      min-height: 100vh;
-      color: #fff;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
-    header {
-      text-align: center;
-      padding: 40px 0;
-    }
-    
-    header h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(90deg, #00d9ff, #00ff88);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-    
-    header p {
-      color: #888;
-      font-size: 1.1rem;
-    }
-    
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    
-    .panel {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .panel h2 {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .panel h2 span {
-      font-size: 1.5rem;
-    }
-    
-    .input-group {
-      margin-bottom: 20px;
-    }
-    
-    .input-group textarea {
-      width: 100%;
-      min-height: 120px;
-      padding: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.3);
-      color: #fff;
-      font-size: 1rem;
-      resize: vertical;
-      transition: border-color 0.3s;
-    }
-    
-    .input-group textarea:focus {
-      outline: none;
-      border-color: #00d9ff;
-    }
-    
-    .input-group textarea::placeholder {
-      color: #666;
-    }
-    
-    .btn {
-      padding: 14px 28px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(90deg, #00d9ff, #00ff88);
-      color: #000;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
-    }
-    
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    .btn-danger {
-      background: #ff4444;
-      color: #fff;
-    }
-    
-    .btn-danger:hover {
-      background: #ff6666;
-    }
-    
-    .status {
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .status.idle {
-      background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .status.running {
-      background: rgba(0, 217, 255, 0.2);
-      animation: pulse 2s infinite;
-    }
-    
-    .status.complete {
-      background: rgba(0, 255, 136, 0.2);
-    }
-    
-    .status.error {
-      background: rgba(255, 68, 68, 0.2);
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-    
-    .screenshot-container {
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 16/9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .screenshot-container img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    
-    .screenshot-placeholder {
-      color: #444;
-      font-size: 1.2rem;
-    }
-    
-    .log-container {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 12px;
-      padding: 16px;
-      max-height: 300px;
-      overflow-y: auto;
-      font-family: 'Monaco', 'Consolas', monospace;
-      font-size: 0.9rem;
-      margin-top: 20px;
-    }
-    
-    .log-entry {
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .log-entry:last-child {
-      border-bottom: none;
-    }
-    
-    .log-entry .time {
-      color: #666;
-      margin-right: 10px;
-    }
-    
-    .log-entry .action {
-      color: #00d9ff;
-    }
-    
-    .log-entry .message {
-      color: #00ff88;
-    }
-    
-    .log-entry .error {
-      color: #ff4444;
-    }
-    
-    .examples {
-      margin-top: 20px;
-    }
-    
-    .examples h3 {
-      font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 10px;
-    }
-    
-    .example-btn {
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      border-radius: 20px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.85rem;
-      margin: 4px;
-      transition: background 0.3s;
-    }
-    
-    .example-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    
-    @media (max-width: 768px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
@@ -259,170 +12,142 @@
       <h1>🖥️ Computer Agent</h1>
       <p>AI 驱动的电脑控制助手 - 基于 GPT-4o Vision</p>
     </header>
-    
-    <div class="main-content">
-      <div class="panel">
-        <h2><span>📝</span> 任务控制</h2>
-        
-        <div id="status" class="status idle">
-          <span>⚪</span> 空闲 - 等待任务
-        </div>
-        
-        <div class="input-group">
-          <textarea id="taskInput" placeholder="输入你想让 AI 完成的任务...
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('control')">任务控制</button>
+      <button class="tab-btn" onclick="switchTab('skills')">技能管理</button>
+      <button class="tab-btn" onclick="switchTab('security')">安全设置</button>
+      <button class="tab-btn" onclick="switchTab('history')">历史记录</button>
+    </div>
+
+    <!-- Tab Content: Control -->
+    <div id="control-tab" class="tab-content active">
+      <div class="main-content">
+        <div class="panel">
+          <h2><span>📝</span> 任务控制</h2>
+
+          <div id="status" class="status idle">
+            <span>⚪</span> 空闲 - 等待任务
+          </div>
+
+          <div class="input-group">
+            <textarea id="taskInput" placeholder="输入你想让 AI 完成的任务...
 例如：打开记事本并写一首诗"></textarea>
+          </div>
+
+          <div class="button-group">
+            <button id="startBtn" class="btn btn-primary">
+              <span>▶️</span> 开始执行
+            </button>
+            <button id="stopBtn" class="btn btn-danger" style="display: none;">
+              <span>⏹️</span> 停止
+            </button>
+          </div>
+
+          <div class="examples">
+            <h3>示例任务：</h3>
+            <button class="example-btn" onclick="app.modules.ui.setExample('打开记事本，写 Hello World')">打开记事本</button>
+            <button class="example-btn" onclick="app.modules.ui.setExample('打开计算器，计算 123 + 456')">使用计算器</button>
+            <button class="example-btn" onclick="app.modules.ui.setExample('打开浏览器，搜索 GitHub Copilot')">浏览器搜索</button>
+            <button class="example-btn" onclick="app.modules.ui.setExample('打开文件管理器，创建一个新文件夹叫 test')">创建文件夹</button>
+          </div>
+
+          <div class="log-container" id="logContainer">
+            <div class="log-entry">
+              <span class="time">--:--:--</span>
+              <span class="message">准备就绪，等待任务...</span>
+            </div>
+          </div>
         </div>
-        
-        <button id="startBtn" class="btn btn-primary" onclick="startTask()">
-          <span>▶️</span> 开始执行
-        </button>
-        <button id="stopBtn" class="btn btn-danger" onclick="stopTask()" style="display: none; margin-left: 10px;">
-          <span>⏹️</span> 停止
-        </button>
-        
-        <div class="examples">
-          <h3>示例任务：</h3>
-          <button class="example-btn" onclick="setExample('打开记事本，写 Hello World')">打开记事本</button>
-          <button class="example-btn" onclick="setExample('打开计算器，计算 123 + 456')">使用计算器</button>
-          <button class="example-btn" onclick="setExample('打开浏览器，搜索 GitHub Copilot')">浏览器搜索</button>
-          <button class="example-btn" onclick="setExample('打开文件管理器，创建一个新文件夹叫 test')">创建文件夹</button>
+
+        <div class="panel">
+          <h2><span>🖼️</span> 屏幕预览</h2>
+
+          <div class="screenshot-container" id="screenshotContainer">
+            <span class="screenshot-placeholder">等待屏幕截图...</span>
+          </div>
+
+          <p class="help-text">
+            当任务执行时，这里会显示 AI 看到的屏幕内容
+          </p>
         </div>
-        
-        <div class="log-container" id="logContainer">
-          <div class="log-entry">
-            <span class="time">--:--:--</span>
-            <span class="message">准备就绪，等待任务...</span>
+      </div>
+    </div>
+
+    <!-- Tab Content: Skills -->
+    <div id="skills-tab" class="tab-content">
+      <div class="panel full-width">
+        <div class="panel-header">
+          <h2><span>📦</span> 技能管理</h2>
+          <div class="button-group">
+            <button id="refreshSkills" class="btn btn-secondary">
+              <span>🔄</span> 刷新
+            </button>
+            <button class="btn btn-secondary" onclick="app.modules.skills.testSkillMatch()">
+              <span>🔍</span> 测试匹配
+            </button>
+          </div>
+        </div>
+
+        <div id="skillsList" class="skills-list">
+          <div class="loading">加载中...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Content: Security -->
+    <div id="security-tab" class="tab-content">
+      <div class="main-content">
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span>🔒</span> 安全状态</h2>
+            <div class="button-group">
+              <button id="refreshSecurity" class="btn btn-secondary">
+                <span>🔄</span> 刷新
+              </button>
+              <button class="btn btn-secondary" onclick="app.modules.security.toggleSecurity()">
+                <span>🔀</span> 切换
+              </button>
+              <button class="btn btn-secondary" onclick="app.modules.security.showSecurityConfig()">
+                <span>⚙️</span> 配置
+              </button>
+            </div>
+          </div>
+
+          <div id="securityStatus" class="security-status">
+            <div class="loading">加载中...</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2><span>⚠️</span> 待确认操作</h2>
+
+          <div id="confirmationsContainer" class="confirmations-container">
+            <div class="empty-state">无待确认操作</div>
           </div>
         </div>
       </div>
-      
-      <div class="panel">
-        <h2><span>🖼️</span> 屏幕预览</h2>
-        
-        <div class="screenshot-container" id="screenshotContainer">
-          <span class="screenshot-placeholder">等待屏幕截图...</span>
+    </div>
+
+    <!-- Tab Content: History -->
+    <div id="history-tab" class="tab-content">
+      <div class="panel full-width">
+        <h2><span>📜</span> 任务历史</h2>
+
+        <div id="historyContainer" class="history-container">
+          <div class="loading">加载中...</div>
         </div>
-        
-        <p style="margin-top: 16px; color: #666; font-size: 0.9rem;">
-          当任务执行时，这里会显示 AI 看到的屏幕内容
-        </p>
       </div>
     </div>
   </div>
 
-  <script>
-    let isRunning = false;
-    let pollInterval = null;
-    
-    function log(type, message) {
-      const container = document.getElementById('logContainer');
-      const time = new Date().toLocaleTimeString();
-      const entry = document.createElement('div');
-      entry.className = 'log-entry';
-      entry.innerHTML = `<span class="time">${time}</span><span class="${type}">${message}</span>`;
-      container.appendChild(entry);
-      container.scrollTop = container.scrollHeight;
-    }
-    
-    function setExample(text) {
-      document.getElementById('taskInput').value = text;
-    }
-    
-    function updateStatus(status, text) {
-      const el = document.getElementById('status');
-      el.className = 'status ' + status;
-      const icons = { idle: '⚪', running: '🔵', complete: '🟢', error: '🔴' };
-      el.innerHTML = `<span>${icons[status] || '⚪'}</span> ${text}`;
-    }
-    
-    async function startTask() {
-      const task = document.getElementById('taskInput').value.trim();
-      if (!task) {
-        alert('请输入任务');
-        return;
-      }
-      
-      try {
-        const response = await fetch('/task', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task })
-        });
-        
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error);
-        }
-        
-        isRunning = true;
-        document.getElementById('startBtn').disabled = true;
-        document.getElementById('stopBtn').style.display = 'inline-flex';
-        updateStatus('running', '正在执行任务...');
-        log('message', `开始任务: ${task}`);
-        
-        // 开始轮询状态
-        pollInterval = setInterval(pollStatus, 1000);
-        
-      } catch (error) {
-        log('error', `错误: ${error.message}`);
-        updateStatus('error', error.message);
-      }
-    }
-    
-    async function pollStatus() {
-      try {
-        const response = await fetch('/task/status');
-        const data = await response.json();
-        
-        if (!data.running) {
-          clearInterval(pollInterval);
-          isRunning = false;
-          document.getElementById('startBtn').disabled = false;
-          document.getElementById('stopBtn').style.display = 'none';
-          
-          if (data.lastTask?.result?.success) {
-            updateStatus('complete', '任务完成');
-            log('message', `✅ ${data.lastTask.result.summary}`);
-          } else if (data.lastTask?.error) {
-            updateStatus('error', '任务失败');
-            log('error', data.lastTask.error);
-          } else {
-            updateStatus('idle', '空闲');
-          }
-          return;
-        }
-        
-        // 处理更新
-        if (data.updates && data.updates.length > 0) {
-          const lastUpdate = data.updates[data.updates.length - 1];
-          
-          if (lastUpdate.type === 'screenshot' && lastUpdate.screenshot) {
-            document.getElementById('screenshotContainer').innerHTML = 
-              `<img src="data:image/png;base64,${lastUpdate.screenshot}" alt="Screen">`;
-          }
-          
-          if (lastUpdate.type === 'action') {
-            log('action', `🔧 ${lastUpdate.tool}: ${JSON.stringify(lastUpdate.args)}`);
-          }
-          
-          if (lastUpdate.type === 'message') {
-            log('message', `💬 ${lastUpdate.content}`);
-          }
-        }
-        
-      } catch (error) {
-        console.error('Poll error:', error);
-      }
-    }
-    
-    async function stopTask() {
-      try {
-        await fetch('/task/stop', { method: 'POST' });
-        log('message', '已请求停止任务');
-      } catch (error) {
-        log('error', `停止失败: ${error.message}`);
-      }
-    }
-  </script>
+  <!-- Scripts -->
+  <script src="api-client.js"></script>
+  <script src="ui-manager.js"></script>
+  <script src="skills-manager.js"></script>
+  <script src="security-manager.js"></script>
+  <script src="app.js"></script>
+  <script src="tabs.js"></script>
 </body>
 </html>
