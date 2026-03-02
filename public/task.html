@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务控制 - Computer Agent</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>🖥️ Computer Agent</h1>
+        <p>AI 驱动的电脑控制</p>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item">
+          <span class="icon">📊</span>
+          <span>仪表板</span>
+        </a>
+        <a href="task.html" class="nav-item">
+          <span class="icon">📝</span>
+          <span>任务控制</span>
+        </a>
+        <a href="skills.html" class="nav-item">
+          <span class="icon">🎯</span>
+          <span>技能管理</span>
+        </a>
+        <a href="security.html" class="nav-item">
+          <span class="icon">🔒</span>
+          <span>安全设置</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <span class="icon">📜</span>
+          <span>历史记录</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>📝 任务控制</h1>
+        <p>启动和管理 AI 执行任务</p>
+      </div>
+
+      <!-- Task Status -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2><span class="icon">💫</span> 任务状态</h2>
+          <span class="status-badge idle" id="taskStatusBadge">⚪ 空闲</span>
+        </div>
+        
+        <div id="taskStatusDetails" style="margin-top: 20px; display: none;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 4px;">当前任务</div>
+              <div id="currentTaskName" style="font-weight: 600;">--</div>
+            </div>
+            <div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 4px;">开始时间</div>
+              <div id="taskStartTime">--</div>
+            </div>
+            <div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 4px;">运行时长</div>
+              <div id="taskDuration">--</div>
+            </div>
+          </div>
+          <div style="margin-top: 16px;">
+            <div class="progress-bar">
+              <div class="progress-bar-fill" id="taskProgress" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top: 20px;">
+        <!-- Task Input -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span class="icon">✍️</span> 任务输入</h2>
+          </div>
+          
+          <div class="input-group">
+            <label>任务描述</label>
+            <textarea id="taskInput" placeholder="输入你想让 AI 完成的任务...
+例如：打开记事本并写一首诗
+      打开计算器并计算 123 + 456
+      在浏览器中搜索 GitHub Copilot"></textarea>
+          </div>
+          
+          <div style="display: flex; gap: 12px;">
+            <button id="startBtn" class="btn btn-primary" onclick="startTask()">
+              <span>▶️</span> 开始执行
+            </button>
+            <button id="stopBtn" class="btn btn-danger" onclick="stopTask()" style="display: none;">
+              <span>⏹️</span> 停止任务
+            </button>
+            <button class="btn btn-secondary" onclick="clearTask()">
+              <span>🗑️</span> 清空
+            </button>
+          </div>
+          
+          <div style="margin-top: 24px;">
+            <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">示例任务</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="btn btn-sm btn-secondary" onclick="setExample('打开记事本，写 Hello World')">
+                打开记事本
+              </button>
+              <button class="btn btn-sm btn-secondary" onclick="setExample('打开计算器，计算 123 + 456')">
+                使用计算器
+              </button>
+              <button class="btn btn-sm btn-secondary" onclick="setExample('打开浏览器，搜索 GitHub Copilot')">
+                浏览器搜索
+              </button>
+              <button class="btn btn-sm btn-secondary" onclick="setExample('打开文件管理器，创建一个新文件夹叫 test')">
+                创建文件夹
+              </button>
+              <button class="btn btn-sm btn-secondary" onclick="setExample('截取当前屏幕并保存')">
+                截取屏幕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen Preview -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span class="icon">🖼️</span> 屏幕预览</h2>
+            <button class="btn btn-sm btn-secondary" onclick="refreshScreenshot()">
+              <span>🔄</span> 刷新
+            </button>
+          </div>
+          
+          <div class="screenshot-container" id="screenshotContainer">
+            <span class="screenshot-placeholder">等待屏幕截图...</span>
+          </div>
+          
+          <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.85rem;">
+            📌 任务执行时，这里会显示 AI 看到的屏幕内容
+          </p>
+        </div>
+      </div>
+
+      <!-- Execution Log -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">📋</span> 执行日志</h2>
+          <button class="btn btn-sm btn-secondary" onclick="clearLog()">
+            <span>🗑️</span> 清空日志
+          </button>
+        </div>
+        
+        <div class="log-container" id="logContainer">
+          <div class="log-entry">
+            <span class="time">--:--:--</span>
+            <span class="message">准备就绪，等待任务...</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let isRunning = false;
+    let pollInterval = null;
+    let taskStartTime = null;
+    let durationInterval = null;
+    
+    // Log function
+    function log(type, message) {
+      const container = document.getElementById('logContainer');
+      const time = utils.formatTime(Date.now());
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      
+      const typeClass = type === 'error' ? 'error' : type === 'action' ? 'action' : 'message';
+      entry.innerHTML = `<span class="time">${time}</span><span class="${typeClass}">${message}</span>`;
+      
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+      
+      // Keep only last 100 entries
+      while (container.children.length > 100) {
+        container.removeChild(container.firstChild);
+      }
+    }
+    
+    function setExample(text) {
+      document.getElementById('taskInput').value = text;
+    }
+    
+    function clearTask() {
+      document.getElementById('taskInput').value = '';
+    }
+    
+    function clearLog() {
+      document.getElementById('logContainer').innerHTML = `
+        <div class="log-entry">
+          <span class="time">--:--:--</span>
+          <span class="message">日志已清空</span>
+        </div>
+      `;
+    }
+    
+    function updateStatus(running, task = null) {
+      const badge = document.getElementById('taskStatusBadge');
+      const details = document.getElementById('taskStatusDetails');
+      
+      if (running && task) {
+        badge.className = 'status-badge running';
+        badge.innerHTML = '🔵 运行中';
+        details.style.display = 'block';
+        document.getElementById('currentTaskName').textContent = task;
+        document.getElementById('taskStartTime').textContent = utils.formatTime(taskStartTime);
+      } else {
+        badge.className = 'status-badge idle';
+        badge.innerHTML = '⚪ 空闲';
+        details.style.display = 'none';
+      }
+    }
+    
+    function updateDuration() {
+      if (taskStartTime) {
+        const duration = Date.now() - taskStartTime;
+        document.getElementById('taskDuration').textContent = utils.formatDuration(duration);
+        
+        // Update progress bar (simulated)
+        const seconds = Math.floor(duration / 1000);
+        const progress = Math.min((seconds / 60) * 100, 100);
+        document.getElementById('taskProgress').style.width = progress + '%';
+      }
+    }
+    
+    async function startTask() {
+      const task = document.getElementById('taskInput').value.trim();
+      if (!task) {
+        utils.showNotification('请输入任务描述', 'error');
+        return;
+      }
+      
+      try {
+        await api.startTask(task);
+        
+        isRunning = true;
+        taskStartTime = Date.now();
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').style.display = 'inline-flex';
+        updateStatus(true, task);
+        log('message', `🚀 开始任务: ${task}`);
+        
+        // Start polling
+        pollInterval = setInterval(pollStatus, 1000);
+        durationInterval = setInterval(updateDuration, 1000);
+        
+        utils.showNotification('任务已启动', 'success');
+        
+      } catch (error) {
+        log('error', `❌ 启动失败: ${error.message}`);
+        utils.showNotification('任务启动失败: ' + error.message, 'error');
+      }
+    }
+    
+    async function pollStatus() {
+      try {
+        const data = await api.getTaskStatus();
+        
+        if (!data.running) {
+          // Task completed
+          clearInterval(pollInterval);
+          clearInterval(durationInterval);
+          pollInterval = null;
+          durationInterval = null;
+          
+          isRunning = false;
+          taskStartTime = null;
+          document.getElementById('startBtn').disabled = false;
+          document.getElementById('stopBtn').style.display = 'none';
+          updateStatus(false);
+          
+          if (data.lastTask?.result?.success) {
+            log('message', `✅ 任务完成: ${data.lastTask.result.summary || '成功'}`);
+            utils.showNotification('任务执行完成', 'success');
+          } else if (data.lastTask?.error) {
+            log('error', `❌ 任务失败: ${data.lastTask.error}`);
+            utils.showNotification('任务执行失败', 'error');
+          } else {
+            updateStatus(false);
+          }
+          return;
+        }
+        
+        // Process updates
+        if (data.updates && data.updates.length > 0) {
+          const lastUpdate = data.updates[data.updates.length - 1];
+          
+          if (lastUpdate.type === 'screenshot' && lastUpdate.screenshot) {
+            document.getElementById('screenshotContainer').innerHTML = 
+              `<img src="data:image/png;base64,${lastUpdate.screenshot}" alt="Screen">`;
+          }
+          
+          if (lastUpdate.type === 'action') {
+            log('action', `🔧 ${lastUpdate.tool}: ${JSON.stringify(lastUpdate.args).substring(0, 100)}`);
+          }
+          
+          if (lastUpdate.type === 'message') {
+            log('message', `💬 ${lastUpdate.content}`);
+          }
+        }
+        
+      } catch (error) {
+        console.error('Poll error:', error);
+      }
+    }
+    
+    async function stopTask() {
+      try {
+        await api.stopTask();
+        log('message', '⏹️ 已请求停止任务');
+        utils.showNotification('停止请求已发送', 'info');
+      } catch (error) {
+        log('error', `❌ 停止失败: ${error.message}`);
+        utils.showNotification('停止任务失败', 'error');
+      }
+    }
+    
+    async function refreshScreenshot() {
+      // This would capture a new screenshot
+      utils.showNotification('截图功能暂未实现', 'info');
+    }
+    
+    // Check if there's a running task on page load
+    async function checkInitialStatus() {
+      const data = await api.getTaskStatus();
+      if (data.running) {
+        isRunning = true;
+        taskStartTime = data.startTime;
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').style.display = 'inline-flex';
+        updateStatus(true, data.task);
+        log('message', '检测到正在运行的任务');
+        
+        pollInterval = setInterval(pollStatus, 1000);
+        durationInterval = setInterval(updateDuration, 1000);
+      }
+    }
+    
+    // Initialize
+    checkInitialStatus();
+  </script>
+</body>
+</html>

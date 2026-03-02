@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@azure/identity": "^4.2.0",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "screenshot-desktop": "^1.15.0",
-    "cors": "^2.8.5",
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.5"
   }
 }

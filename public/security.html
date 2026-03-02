@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全设置 - Computer Agent</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>🖥️ Computer Agent</h1>
+        <p>AI 驱动的电脑控制</p>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item">
+          <span class="icon">📊</span>
+          <span>仪表板</span>
+        </a>
+        <a href="task.html" class="nav-item">
+          <span class="icon">📝</span>
+          <span>任务控制</span>
+        </a>
+        <a href="skills.html" class="nav-item">
+          <span class="icon">🎯</span>
+          <span>技能管理</span>
+        </a>
+        <a href="security.html" class="nav-item">
+          <span class="icon">🔒</span>
+          <span>安全设置</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <span class="icon">📜</span>
+          <span>历史记录</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>🔒 安全设置</h1>
+        <p>配置系统安全策略和权限控制</p>
+      </div>
+
+      <!-- Security Status -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2><span class="icon">🛡️</span> 安全状态</h2>
+          <span class="status-badge complete" id="securityStatusBadge">🟢 安全模式已启用</span>
+        </div>
+        
+        <div style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(0,217,255,0.1); border-radius: 8px;">
+            <div>
+              <div style="font-weight: 600; margin-bottom: 4px;">安全模式</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">启用后，危险操作将被阻止或需要确认</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="securityToggle" checked onchange="toggleSecurity()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top: 20px;">
+        <!-- Security Config -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span class="icon">⚙️</span> 安全配置</h2>
+          </div>
+          
+          <div id="securityConfig">
+            <div class="empty-state">
+              <div class="icon">⚙️</div>
+              <h3>加载中...</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blocked Operations -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span class="icon">🚫</span> 黑名单</h2>
+          </div>
+          
+          <div id="blockedOperations">
+            <div class="empty-state">
+              <div class="icon">🚫</div>
+              <h3>加载中...</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Confirmations -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">⏳</span> 待确认操作</h2>
+          <button class="btn btn-sm btn-secondary" onclick="refreshConfirmations()">
+            <span>🔄</span> 刷新
+          </button>
+        </div>
+        
+        <div id="confirmationsList">
+          <div class="empty-state">
+            <div class="icon">✅</div>
+            <h3>暂无待确认操作</h3>
+            <p>所有操作都已经处理完毕</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Log -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">📋</span> 安全日志</h2>
+        </div>
+        
+        <div class="log-container" id="securityLog">
+          <div class="log-entry">
+            <span class="time">--:--:--</span>
+            <span class="message">系统就绪</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let securityStatus = {};
+
+    function logSecurity(message, type = 'info') {
+      const container = document.getElementById('securityLog');
+      const time = utils.formatTime(Date.now());
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+      entry.innerHTML = `<span class="time">${time}</span><span class="message">${icon} ${message}</span>`;
+      
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function loadSecurityStatus() {
+      try {
+        securityStatus = await api.getSecurityStatus();
+        const badge = document.getElementById('securityStatusBadge');
+        const toggle = document.getElementById('securityToggle');
+        
+        toggle.checked = securityStatus.enabled;
+        
+        if (securityStatus.enabled) {
+          badge.className = 'status-badge complete';
+          badge.innerHTML = '🟢 安全模式已启用';
+        } else {
+          badge.className = 'status-badge warning';
+          badge.innerHTML = '🟡 安全模式已禁用';
+        }
+      } catch (error) {
+        console.error('Failed to load security status:', error);
+      }
+    }
+
+    async function loadSecurityConfig() {
+      try {
+        const config = await api.getSecurityConfig();
+        
+        document.getElementById('securityConfig').innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 600;">需要确认</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">高风险操作需要手动确认</div>
+              </div>
+              <span class="${config.requireConfirmation?.enabled ? 'status-badge complete' : 'status-badge idle'}">
+                ${config.requireConfirmation?.enabled ? '✓ 已启用' : '✗ 已禁用'}
+              </span>
+            </div>
+            
+            <div style="padding-top: 16px; border-top: 1px solid var(--border-color);">
+              <div style="font-weight: 600; margin-bottom: 8px;">需确认的操作类型</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${(config.requireConfirmation?.operations || []).map(op => `
+                  <span class="status-badge idle" style="font-size: 0.8rem;">${op}</span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Display blocked operations
+        document.getElementById('blockedOperations').innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+              <div style="font-weight: 600; margin-bottom: 8px;">禁止的应用</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${(config.blockedApps || []).map(app => `
+                  <span class="status-badge error" style="font-size: 0.8rem;">🚫 ${app}</span>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div>
+              <div style="font-weight: 600; margin-bottom: 8px;">禁止的组合键</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${(config.blockedKeyCombos || []).map(combo => `
+                  <span class="status-badge error" style="font-size: 0.8rem;">⌨️ ${combo.join('+')}</span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Failed to load security config:', error);
+        document.getElementById('securityConfig').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">❌</div>
+            <h3>加载失败</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadConfirmations() {
+      try {
+        const data = await api.getConfirmations();
+        const confirmations = data.confirmations || [];
+        
+        if (confirmations.length === 0) {
+          document.getElementById('confirmationsList').innerHTML = `
+            <div class="empty-state">
+              <div class="icon">✅</div>
+              <h3>暂无待确认操作</h3>
+              <p>所有操作都已经处理完毕</p>
+            </div>
+          `;
+          return;
+        }
+
+        document.getElementById('confirmationsList').innerHTML = `
+          <table class="table">
+            <thead>
+              <tr>
+                <th>操作</th>
+                <th>参数</th>
+                <th>原因</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${confirmations.map(conf => `
+                <tr>
+                  <td><strong>${conf.operation}</strong></td>
+                  <td style="font-size: 0.85rem; font-family: monospace;">${JSON.stringify(conf.args).substring(0, 50)}</td>
+                  <td style="color: var(--text-secondary);">${conf.reason}</td>
+                  <td>
+                    <button class="btn btn-sm btn-success" onclick="confirmOp('${conf.id}')">
+                      ✓ 确认
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="rejectOp('${conf.id}')" style="margin-left: 8px;">
+                      ✗ 拒绝
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        console.error('Failed to load confirmations:', error);
+      }
+    }
+
+    async function toggleSecurity() {
+      const enabled = document.getElementById('securityToggle').checked;
+      
+      try {
+        await api.toggleSecurity(enabled);
+        await loadSecurityStatus();
+        utils.showNotification(`安全模式已${enabled ? '启用' : '禁用'}`, 'success');
+        logSecurity(`安全模式已${enabled ? '启用' : '禁用'}`, enabled ? 'success' : 'warning');
+      } catch (error) {
+        utils.showNotification('切换失败: ' + error.message, 'error');
+        // Revert toggle
+        document.getElementById('securityToggle').checked = !enabled;
+      }
+    }
+
+    async function confirmOp(id) {
+      try {
+        await api.confirmOperation(id);
+        utils.showNotification('操作已确认', 'success');
+        logSecurity(`操作 ${id} 已确认`, 'success');
+        await loadConfirmations();
+      } catch (error) {
+        utils.showNotification('确认失败: ' + error.message, 'error');
+      }
+    }
+
+    async function rejectOp(id) {
+      try {
+        await api.rejectOperation(id);
+        utils.showNotification('操作已拒绝', 'info');
+        logSecurity(`操作 ${id} 已拒绝`, 'warning');
+        await loadConfirmations();
+      } catch (error) {
+        utils.showNotification('拒绝失败: ' + error.message, 'error');
+      }
+    }
+
+    async function refreshConfirmations() {
+      await loadConfirmations();
+      utils.showNotification('已刷新', 'success');
+    }
+
+    // Initialize
+    loadSecurityStatus();
+    loadSecurityConfig();
+    loadConfirmations();
+    
+    // Refresh confirmations every 5 seconds
+    setInterval(loadConfirmations, 5000);
+  </script>
+</body>
+</html>

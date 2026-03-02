@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>历史记录 - Computer Agent</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>🖥️ Computer Agent</h1>
+        <p>AI 驱动的电脑控制</p>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item">
+          <span class="icon">📊</span>
+          <span>仪表板</span>
+        </a>
+        <a href="task.html" class="nav-item">
+          <span class="icon">📝</span>
+          <span>任务控制</span>
+        </a>
+        <a href="skills.html" class="nav-item">
+          <span class="icon">🎯</span>
+          <span>技能管理</span>
+        </a>
+        <a href="security.html" class="nav-item">
+          <span class="icon">🔒</span>
+          <span>安全设置</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <span class="icon">📜</span>
+          <span>历史记录</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>📜 历史记录</h1>
+        <p>查看所有任务执行历史</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-4">
+        <div class="panel stat-card">
+          <div class="value" id="totalTasks">0</div>
+          <div class="label">总任务数</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="successfulTasks">0</div>
+          <div class="label">成功任务</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="failedTasks">0</div>
+          <div class="label">失败任务</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="avgDuration">0s</div>
+          <div class="label">平均耗时</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">🔍</span> 筛选</h2>
+          <button class="btn btn-sm btn-secondary" onclick="clearFilters()">
+            <span>🗑️</span> 清除筛选
+          </button>
+        </div>
+        
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <select id="statusFilter" onchange="applyFilters()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: var(--text-primary);">
+            <option value="all">所有状态</option>
+            <option value="success">成功</option>
+            <option value="failed">失败</option>
+          </select>
+          
+          <input type="search" id="taskSearch" placeholder="搜索任务..." 
+                 style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: var(--text-primary); flex: 1;"
+                 oninput="applyFilters()">
+          
+          <button class="btn btn-secondary btn-sm" onclick="loadHistory()">
+            <span>🔄</span> 刷新
+          </button>
+        </div>
+      </div>
+
+      <!-- Task History -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">📋</span> 任务列表</h2>
+        </div>
+        
+        <div id="historyList">
+          <div class="empty-state">
+            <div class="icon">📜</div>
+            <h3>加载中...</h3>
+            <p>正在加载历史记录</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Task Detail Modal -->
+  <div id="taskDetailModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2>📋 任务详情</h2>
+        <button class="modal-close" onclick="modal.close('taskDetailModal')">×</button>
+      </div>
+      <div id="taskDetailContent">
+        <!-- Content will be loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let allHistory = [];
+
+    async function loadHistory() {
+      try {
+        allHistory = await api.getHistory();
+        
+        const total = allHistory.length;
+        const successful = allHistory.filter(t => t.result?.success).length;
+        const failed = allHistory.filter(t => t.error || !t.result?.success).length;
+        const avgDur = total > 0 
+          ? allHistory.reduce((sum, t) => sum + ((t.endTime || Date.now()) - t.startTime), 0) / total 
+          : 0;
+        
+        document.getElementById('totalTasks').textContent = total;
+        document.getElementById('successfulTasks').textContent = successful;
+        document.getElementById('failedTasks').textContent = failed;
+        document.getElementById('avgDuration').textContent = utils.formatDuration(avgDur);
+        
+        displayHistory(allHistory);
+      } catch (error) {
+        console.error('Failed to load history:', error);
+        document.getElementById('historyList').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">❌</div>
+            <h3>加载失败</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function displayHistory(history) {
+      const container = document.getElementById('historyList');
+      
+      if (history.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>暂无历史记录</h3>
+            <p>还没有执行过任何任务</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort by start time, newest first
+      const sorted = [...history].sort((a, b) => b.startTime - a.startTime);
+
+      container.innerHTML = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 40%;">任务</th>
+              <th style="width: 15%;">状态</th>
+              <th style="width: 15%;">开始时间</th>
+              <th style="width: 15%;">耗时</th>
+              <th style="width: 15%;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sorted.map((task, index) => {
+              const duration = (task.endTime || Date.now()) - task.startTime;
+              const isSuccess = task.result?.success;
+              const isFailed = task.error || (!task.result?.success && task.endTime);
+              
+              return `
+                <tr>
+                  <td>
+                    <div style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${task.task}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-badge ${isSuccess ? 'complete' : isFailed ? 'error' : 'running'}">
+                      ${isSuccess ? '✓ 完成' : isFailed ? '✗ 失败' : '🔵 运行中'}
+                    </span>
+                  </td>
+                  <td style="font-size: 0.85rem;">${utils.formatTime(task.startTime)}</td>
+                  <td style="font-size: 0.85rem;">${utils.formatDuration(duration)}</td>
+                  <td>
+                    <button class="btn btn-sm btn-secondary" onclick="viewTaskDetail(${index})">
+                      查看
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function applyFilters() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const searchQuery = document.getElementById('taskSearch').value.toLowerCase();
+      
+      let filtered = allHistory;
+      
+      // Status filter
+      if (statusFilter === 'success') {
+        filtered = filtered.filter(t => t.result?.success);
+      } else if (statusFilter === 'failed') {
+        filtered = filtered.filter(t => t.error || !t.result?.success);
+      }
+      
+      // Search filter
+      if (searchQuery) {
+        filtered = filtered.filter(t => 
+          t.task.toLowerCase().includes(searchQuery) ||
+          (t.result?.summary || '').toLowerCase().includes(searchQuery)
+        );
+      }
+      
+      displayHistory(filtered);
+    }
+
+    function clearFilters() {
+      document.getElementById('statusFilter').value = 'all';
+      document.getElementById('taskSearch').value = '';
+      displayHistory(allHistory);
+    }
+
+    function viewTaskDetail(index) {
+      const sorted = [...allHistory].sort((a, b) => b.startTime - a.startTime);
+      const task = sorted[index];
+      
+      const duration = (task.endTime || Date.now()) - task.startTime;
+      const isSuccess = task.result?.success;
+      const isFailed = task.error || (!task.result?.success && task.endTime);
+      
+      document.getElementById('taskDetailContent').innerHTML = `
+        <div style="margin-bottom: 20px;">
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-secondary);">任务描述</strong>
+            <p style="margin-top: 8px; font-size: 1.1rem;">${task.task}</p>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px;">
+            <div>
+              <strong style="color: var(--text-secondary);">状态</strong>
+              <div style="margin-top: 8px;">
+                <span class="status-badge ${isSuccess ? 'complete' : isFailed ? 'error' : 'running'}">
+                  ${isSuccess ? '✓ 完成' : isFailed ? '✗ 失败' : '🔵 运行中'}
+                </span>
+              </div>
+            </div>
+            <div>
+              <strong style="color: var(--text-secondary);">耗时</strong>
+              <p style="margin-top: 8px;">${utils.formatDuration(duration)}</p>
+            </div>
+            <div>
+              <strong style="color: var(--text-secondary);">开始时间</strong>
+              <p style="margin-top: 8px;">${utils.formatDate(task.startTime)} ${utils.formatTime(task.startTime)}</p>
+            </div>
+            <div>
+              <strong style="color: var(--text-secondary);">结束时间</strong>
+              <p style="margin-top: 8px;">${task.endTime ? utils.formatDate(task.endTime) + ' ' + utils.formatTime(task.endTime) : '未完成'}</p>
+            </div>
+          </div>
+          
+          ${task.result?.summary ? `
+            <div style="margin-bottom: 16px;">
+              <strong style="color: var(--text-secondary);">结果摘要</strong>
+              <p style="margin-top: 8px; color: var(--accent-green);">${task.result.summary}</p>
+            </div>
+          ` : ''}
+          
+          ${task.error ? `
+            <div style="margin-bottom: 16px;">
+              <strong style="color: var(--text-secondary);">错误信息</strong>
+              <div class="code-block" style="margin-top: 8px;">
+                <pre style="margin: 0; color: var(--danger);">${task.error}</pre>
+              </div>
+            </div>
+          ` : ''}
+          
+          ${task.updates && task.updates.length > 0 ? `
+            <div style="margin-bottom: 16px;">
+              <strong style="color: var(--text-secondary);">执行更新 (${task.updates.length} 条)</strong>
+              <div class="log-container" style="margin-top: 8px; max-height: 300px;">
+                ${task.updates.slice(-20).map(update => {
+                  if (update.type === 'action') {
+                    return `<div class="log-entry"><span class="type">ACTION</span><span class="message">${update.tool}: ${JSON.stringify(update.args).substring(0, 100)}</span></div>`;
+                  } else if (update.type === 'message') {
+                    return `<div class="log-entry"><span class="message">${update.content}</span></div>`;
+                  }
+                  return '';
+                }).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+        
+        <div style="text-align: right;">
+          <button class="btn btn-secondary" onclick="modal.close('taskDetailModal')">
+            关闭
+          </button>
+        </div>
+      `;
+      
+      modal.open('taskDetailModal');
+    }
+
+    // Initialize
+    loadHistory();
+  </script>
+</body>
+</html>

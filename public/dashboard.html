@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Computer Agent</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>🖥️ Computer Agent</h1>
+        <p>AI 驱动的电脑控制</p>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-item">
+          <span class="icon">📊</span>
+          <span>仪表板</span>
+        </a>
+        <a href="task.html" class="nav-item">
+          <span class="icon">📝</span>
+          <span>任务控制</span>
+        </a>
+        <a href="skills.html" class="nav-item">
+          <span class="icon">🎯</span>
+          <span>技能管理</span>
+        </a>
+        <a href="security.html" class="nav-item">
+          <span class="icon">🔒</span>
+          <span>安全设置</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <span class="icon">📜</span>
+          <span>历史记录</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>📊 仪表板</h1>
+        <p>实时监控系统状态和性能指标</p>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="grid grid-4">
+        <div class="panel stat-card">
+          <div class="value" id="totalTasks">0</div>
+          <div class="label">总任务数</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="completedTasks">0</div>
+          <div class="label">完成任务</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="loadedSkills">0</div>
+          <div class="label">加载技能</div>
+        </div>
+        <div class="panel stat-card">
+          <div class="value" id="successRate">0%</div>
+          <div class="label">成功率</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top: 20px;">
+        <!-- System Status -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span class="icon">💻</span> 系统状态</h2>
+            <span class="status-badge" id="systemStatus">⚪ 检查中...</span>
+          </div>
+          
+          <div style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="color: var(--text-secondary);">服务器状态</span>
+              <span id="serverStatus">🟢 运行中</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="color: var(--text-secondary);">安全模式</span>
+              <span id="securityMode">🔒 已启用</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="color: var(--text-secondary);">当前任务</span>
+              <span id="currentTaskStatus">空闲</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-secondary);">运行时长</span>
+              <span id="uptime">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2><span class="icon">⚡</span> 快速操作</h2>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+            <a href="task.html" class="btn btn-primary" style="justify-content: center;">
+              <span>▶️</span> 启动新任务
+            </a>
+            <a href="skills.html" class="btn btn-secondary" style="justify-content: center;">
+              <span>🔄</span> 刷新技能
+            </a>
+            <a href="security.html" class="btn btn-secondary" style="justify-content: center;">
+              <span>⚙️</span> 安全设置
+            </a>
+            <button class="btn btn-secondary" onclick="refreshDashboard(event)" style="justify-content: center;">
+              <span>🔄</span> 刷新数据
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+          <h2><span class="icon">📊</span> 最近活动</h2>
+          <a href="history.html" class="btn btn-sm btn-secondary">查看全部</a>
+        </div>
+        
+        <div id="recentActivity">
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>暂无活动</h3>
+            <p>开始一个任务来查看活动记录</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Task Live View (if running) -->
+      <div class="panel" id="liveTaskPanel" style="margin-top: 20px; display: none;">
+        <div class="panel-header">
+          <h2><span class="icon">🎬</span> 任务执行中</h2>
+          <span class="status-badge running">🔵 运行中</span>
+        </div>
+        
+        <div class="grid grid-2" style="margin-top: 20px;">
+          <div>
+            <h3 style="margin-bottom: 12px; color: var(--text-secondary);">任务描述</h3>
+            <p id="liveTaskDescription">--</p>
+            <div style="margin-top: 16px;">
+              <h3 style="margin-bottom: 12px; color: var(--text-secondary);">执行时间</h3>
+              <p id="liveTaskDuration">--</p>
+            </div>
+          </div>
+          <div>
+            <div class="screenshot-container" id="liveScreenshot">
+              <span class="screenshot-placeholder">等待截图...</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <h3 style="margin-bottom: 12px; color: var(--text-secondary);">执行日志</h3>
+          <div class="log-container" id="liveTaskLog" style="max-height: 200px;">
+            <div class="log-entry">
+              <span class="time">--:--:--</span>
+              <span class="message">等待日志...</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="task.html" class="btn btn-secondary">
+            <span>👁️</span> 查看详细信息
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let startTime = Date.now();
+    let pollInterval = null;
+
+    // Update uptime
+    setInterval(() => {
+      const uptime = Date.now() - startTime;
+      document.getElementById('uptime').textContent = utils.formatDuration(uptime);
+    }, 1000);
+
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        // Get system health
+        const health = await api.healthCheck();
+        document.getElementById('systemStatus').innerHTML = '🟢 正常运行';
+        document.getElementById('systemStatus').className = 'status-badge complete';
+
+        // Get skills
+        const skillsData = await api.getSkills();
+        document.getElementById('loadedSkills').textContent = skillsData.count || 0;
+
+        // Get security status
+        const securityStatus = await api.getSecurityStatus();
+        document.getElementById('securityMode').textContent = 
+          securityStatus.enabled ? '🔒 已启用' : '🔓 已禁用';
+
+        // Get task history
+        const history = await api.getHistory();
+        const totalTasks = history.length;
+        const completedTasks = history.filter(t => t.result?.success).length;
+        const successRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        document.getElementById('totalTasks').textContent = totalTasks;
+        document.getElementById('completedTasks').textContent = completedTasks;
+        document.getElementById('successRate').textContent = successRate + '%';
+
+        // Show recent activity
+        showRecentActivity(history.slice(-5).reverse());
+
+        // Check for current task
+        checkCurrentTask();
+
+      } catch (error) {
+        console.error('Failed to load dashboard:', error);
+        document.getElementById('systemStatus').innerHTML = '🔴 连接失败';
+        document.getElementById('systemStatus').className = 'status-badge error';
+      }
+    }
+
+    function showRecentActivity(history) {
+      const container = document.getElementById('recentActivity');
+      
+      if (history.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>暂无活动</h3>
+            <p>开始一个任务来查看活动记录</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th>任务</th>
+              <th>状态</th>
+              <th>时间</th>
+              <th>耗时</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${history.map(task => `
+              <tr>
+                <td>${task.task}</td>
+                <td>
+                  <span class="status-badge ${task.result?.success ? 'complete' : task.error ? 'error' : 'idle'}">
+                    ${task.result?.success ? '✓ 完成' : task.error ? '✗ 失败' : '⚪ 未知'}
+                  </span>
+                </td>
+                <td>${utils.formatTime(task.startTime)}</td>
+                <td>${utils.formatDuration((task.endTime || Date.now()) - task.startTime)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function checkCurrentTask() {
+      const status = await api.getTaskStatus();
+      
+      if (status.running) {
+        document.getElementById('currentTaskStatus').innerHTML = '🔵 执行中';
+        document.getElementById('liveTaskPanel').style.display = 'block';
+        document.getElementById('liveTaskDescription').textContent = status.task;
+        
+        const duration = Date.now() - status.startTime;
+        document.getElementById('liveTaskDuration').textContent = utils.formatDuration(duration);
+
+        // Show latest updates
+        if (status.updates && status.updates.length > 0) {
+          const lastUpdate = status.updates[status.updates.length - 1];
+          
+          if (lastUpdate.type === 'screenshot' && lastUpdate.screenshot) {
+            document.getElementById('liveScreenshot').innerHTML = 
+              `<img src="data:image/png;base64,${lastUpdate.screenshot}" alt="Screen">`;
+          }
+
+          // Show logs
+          const logContainer = document.getElementById('liveTaskLog');
+          logContainer.innerHTML = status.updates.slice(-5).map(update => {
+            const time = utils.formatTime(Date.now());
+            if (update.type === 'action') {
+              return `<div class="log-entry"><span class="time">${time}</span><span class="type">ACTION</span><span class="message">${update.tool}</span></div>`;
+            } else if (update.type === 'message') {
+              return `<div class="log-entry"><span class="time">${time}</span><span class="message">${update.content}</span></div>`;
+            }
+            return '';
+          }).join('');
+        }
+
+        // Continue polling
+        if (!pollInterval) {
+          pollInterval = setInterval(checkCurrentTask, 2000);
+        }
+      } else {
+        document.getElementById('currentTaskStatus').innerHTML = '⚪ 空闲';
+        document.getElementById('liveTaskPanel').style.display = 'none';
+        if (pollInterval) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+        }
+      }
+    }
+
+    async function refreshDashboard(event) {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> 刷新中...';
+      
+      await loadDashboard();
+      
+      btn.disabled = false;
+      btn.innerHTML = '<span>🔄</span> 刷新数据';
+      utils.showNotification('仪表板已刷新', 'success');
+    }
+
+    // Initialize
+    loadDashboard();
+    setInterval(loadDashboard, 10000); // Refresh every 10 seconds
+  </script>
+</body>
+</html>
