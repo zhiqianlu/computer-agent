@@ -10,25 +10,25 @@
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       min-height: 100vh;
       color: #fff;
     }
-    
+
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 20px;
     }
-    
+
     header {
       text-align: center;
-      padding: 40px 0;
+      padding: 30px 0;
     }
-    
+
     header h1 {
       font-size: 2.5rem;
       background: linear-gradient(90deg, #00d9ff, #00ff88);
@@ -36,25 +36,68 @@
       -webkit-text-fill-color: transparent;
       margin-bottom: 10px;
     }
-    
+
     header p {
       color: #888;
       font-size: 1.1rem;
     }
-    
+
+    /* Tab Navigation */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #888;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      color: #fff;
+    }
+
+    .tab.active {
+      color: #00d9ff;
+      border-bottom-color: #00d9ff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     .main-content {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
-    
+
     .panel {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 16px;
       padding: 24px;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
+    .panel.full-width {
+      grid-column: 1 / -1;
+    }
+
     .panel h2 {
       font-size: 1.2rem;
       margin-bottom: 20px;
@@ -62,15 +105,22 @@
       align-items: center;
       gap: 10px;
     }
-    
+
     .panel h2 span {
       font-size: 1.5rem;
     }
-    
+
     .input-group {
       margin-bottom: 20px;
     }
-    
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
     .input-group textarea {
       width: 100%;
       min-height: 120px;
@@ -83,16 +133,33 @@
       resize: vertical;
       transition: border-color 0.3s;
     }
-    
+
     .input-group textarea:focus {
       outline: none;
       border-color: #00d9ff;
     }
-    
+
     .input-group textarea::placeholder {
       color: #666;
     }
-    
+
+    .input-group input[type="text"],
+    .input-group input[type="number"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      color: #fff;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #00d9ff;
+    }
+
     .btn {
       padding: 14px 28px;
       border: none;
@@ -105,32 +172,55 @@
       align-items: center;
       gap: 8px;
     }
-    
+
     .btn-primary {
       background: linear-gradient(90deg, #00d9ff, #00ff88);
       color: #000;
     }
-    
+
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
     }
-    
+
     .btn-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
       transform: none;
     }
-    
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
     .btn-danger {
       background: #ff4444;
       color: #fff;
     }
-    
+
     .btn-danger:hover {
       background: #ff6666;
     }
-    
+
+    .btn-success {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .btn-success:hover {
+      background: #00ffaa;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
     .status {
       padding: 12px 16px;
       border-radius: 8px;
@@ -139,29 +229,29 @@
       align-items: center;
       gap: 10px;
     }
-    
+
     .status.idle {
       background: rgba(255, 255, 255, 0.1);
     }
-    
+
     .status.running {
       background: rgba(0, 217, 255, 0.2);
       animation: pulse 2s infinite;
     }
-    
+
     .status.complete {
       background: rgba(0, 255, 136, 0.2);
     }
-    
+
     .status.error {
       background: rgba(255, 68, 68, 0.2);
     }
-    
+
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.7; }
     }
-    
+
     .screenshot-container {
       background: #000;
       border-radius: 12px;
@@ -171,18 +261,18 @@
       align-items: center;
       justify-content: center;
     }
-    
+
     .screenshot-container img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
     }
-    
+
     .screenshot-placeholder {
       color: #444;
       font-size: 1.2rem;
     }
-    
+
     .log-container {
       background: rgba(0, 0, 0, 0.3);
       border-radius: 12px;
@@ -193,43 +283,43 @@
       font-size: 0.9rem;
       margin-top: 20px;
     }
-    
+
     .log-entry {
       padding: 8px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    
+
     .log-entry:last-child {
       border-bottom: none;
     }
-    
+
     .log-entry .time {
       color: #666;
       margin-right: 10px;
     }
-    
+
     .log-entry .action {
       color: #00d9ff;
     }
-    
+
     .log-entry .message {
       color: #00ff88;
     }
-    
+
     .log-entry .error {
       color: #ff4444;
     }
-    
+
     .examples {
       margin-top: 20px;
     }
-    
+
     .examples h3 {
       font-size: 0.9rem;
       color: #888;
       margin-bottom: 10px;
     }
-    
+
     .example-btn {
       padding: 8px 16px;
       background: rgba(255, 255, 255, 0.1);
@@ -241,14 +331,257 @@
       margin: 4px;
       transition: background 0.3s;
     }
-    
+
     .example-btn:hover {
       background: rgba(255, 255, 255, 0.2);
     }
-    
+
+    /* Skills List */
+    .skills-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .skill-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .skill-item h3 {
+      font-size: 1rem;
+      color: #00d9ff;
+      margin-bottom: 8px;
+    }
+
+    .skill-item p {
+      font-size: 0.9rem;
+      color: #aaa;
+      line-height: 1.5;
+    }
+
+    /* History List */
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .history-item .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-item .task-text {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .history-item .timestamp {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .history-item .result {
+      font-size: 0.9rem;
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .history-item .result.success {
+      background: rgba(0, 255, 136, 0.1);
+      color: #00ff88;
+    }
+
+    .history-item .result.error {
+      background: rgba(255, 68, 68, 0.1);
+      color: #ff4444;
+    }
+
+    /* Security Config */
+    .config-group {
+      margin-bottom: 20px;
+    }
+
+    .config-group h3 {
+      font-size: 1rem;
+      color: #00d9ff;
+      margin-bottom: 12px;
+    }
+
+    .config-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .config-item label {
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background: #666;
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle.active {
+      background: #00d9ff;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.3s;
+    }
+
+    .toggle.active::after {
+      left: 27px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-card .label {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      color: #00d9ff;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Confirmation Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-content h2 {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      color: #00d9ff;
+    }
+
+    .modal-content .operation {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-family: 'Monaco', 'Consolas', monospace;
+    }
+
+    .modal-content .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge.success {
+      background: rgba(0, 255, 136, 0.2);
+      color: #00ff88;
+    }
+
+    .badge.warning {
+      background: rgba(255, 187, 0, 0.2);
+      color: #ffbb00;
+    }
+
+    .badge.danger {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
     @media (max-width: 768px) {
       .main-content {
         grid-template-columns: 1fr;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 2rem;
       }
     }
   </style>
@@ -259,53 +592,170 @@
       <h1>🖥️ Computer Agent</h1>
       <p>AI 驱动的电脑控制助手 - 基于 GPT-4o Vision</p>
     </header>
-    
-    <div class="main-content">
-      <div class="panel">
-        <h2><span>📝</span> 任务控制</h2>
-        
-        <div id="status" class="status idle">
-          <span>⚪</span> 空闲 - 等待任务
-        </div>
-        
-        <div class="input-group">
-          <textarea id="taskInput" placeholder="输入你想让 AI 完成的任务...
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('control')">📝 任务控制</button>
+      <button class="tab" onclick="switchTab('skills')">✨ 技能管理</button>
+      <button class="tab" onclick="switchTab('security')">🔒 安全设置</button>
+      <button class="tab" onclick="switchTab('history')">📊 任务历史</button>
+    </div>
+
+    <!-- Tab 1: Task Control -->
+    <div id="tab-control" class="tab-content active">
+      <div class="main-content">
+        <div class="panel">
+          <h2><span>📝</span> 任务控制</h2>
+
+          <div id="status" class="status idle">
+            <span>⚪</span> 空闲 - 等待任务
+          </div>
+
+          <div class="input-group">
+            <textarea id="taskInput" placeholder="输入你想让 AI 完成的任务...
 例如：打开记事本并写一首诗"></textarea>
+          </div>
+
+          <button id="startBtn" class="btn btn-primary" onclick="startTask()">
+            <span>▶️</span> 开始执行
+          </button>
+          <button id="stopBtn" class="btn btn-danger" onclick="stopTask()" style="display: none; margin-left: 10px;">
+            <span>⏹️</span> 停止
+          </button>
+
+          <div class="examples">
+            <h3>示例任务：</h3>
+            <button class="example-btn" onclick="setExample('打开记事本，写 Hello World')">打开记事本</button>
+            <button class="example-btn" onclick="setExample('打开计算器，计算 123 + 456')">使用计算器</button>
+            <button class="example-btn" onclick="setExample('打开浏览器，搜索 GitHub Copilot')">浏览器搜索</button>
+            <button class="example-btn" onclick="setExample('打开文件管理器，创建一个新文件夹叫 test')">创建文件夹</button>
+          </div>
+
+          <div class="log-container" id="logContainer">
+            <div class="log-entry">
+              <span class="time">--:--:--</span>
+              <span class="message">准备就绪，等待任务...</span>
+            </div>
+          </div>
         </div>
-        
-        <button id="startBtn" class="btn btn-primary" onclick="startTask()">
-          <span>▶️</span> 开始执行
-        </button>
-        <button id="stopBtn" class="btn btn-danger" onclick="stopTask()" style="display: none; margin-left: 10px;">
-          <span>⏹️</span> 停止
-        </button>
-        
-        <div class="examples">
-          <h3>示例任务：</h3>
-          <button class="example-btn" onclick="setExample('打开记事本，写 Hello World')">打开记事本</button>
-          <button class="example-btn" onclick="setExample('打开计算器，计算 123 + 456')">使用计算器</button>
-          <button class="example-btn" onclick="setExample('打开浏览器，搜索 GitHub Copilot')">浏览器搜索</button>
-          <button class="example-btn" onclick="setExample('打开文件管理器，创建一个新文件夹叫 test')">创建文件夹</button>
+
+        <div class="panel">
+          <h2><span>🖼️</span> 屏幕预览</h2>
+
+          <div class="screenshot-container" id="screenshotContainer">
+            <span class="screenshot-placeholder">等待屏幕截图...</span>
+          </div>
+
+          <p style="margin-top: 16px; color: #666; font-size: 0.9rem;">
+            当任务执行时，这里会显示 AI 看到的屏幕内容
+          </p>
         </div>
-        
-        <div class="log-container" id="logContainer">
-          <div class="log-entry">
-            <span class="time">--:--:--</span>
-            <span class="message">准备就绪，等待任务...</span>
+      </div>
+    </div>
+
+    <!-- Tab 2: Skills Management -->
+    <div id="tab-skills" class="tab-content">
+      <div class="panel full-width">
+        <h2><span>✨</span> 技能管理</h2>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+          <button class="btn btn-secondary" onclick="loadSkills()">
+            <span>🔄</span> 刷新技能
+          </button>
+          <span id="skillCount" style="padding: 14px; color: #888;">加载中...</span>
+        </div>
+
+        <div id="skillsList" class="skills-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">✨</div>
+            <p>点击刷新加载技能列表</p>
           </div>
         </div>
       </div>
-      
-      <div class="panel">
-        <h2><span>🖼️</span> 屏幕预览</h2>
-        
-        <div class="screenshot-container" id="screenshotContainer">
-          <span class="screenshot-placeholder">等待屏幕截图...</span>
+    </div>
+
+    <!-- Tab 3: Security Settings -->
+    <div id="tab-security" class="tab-content">
+      <div class="main-content">
+        <div class="panel">
+          <h2><span>🔒</span> 安全配置</h2>
+
+          <div class="config-group">
+            <h3>安全模式</h3>
+            <div class="config-item">
+              <label>启用安全模式</label>
+              <div id="securityToggle" class="toggle active" onclick="toggleSecurityMode()"></div>
+            </div>
+          </div>
+
+          <div class="config-group">
+            <h3>待确认操作</h3>
+            <div id="pendingConfirmations">
+              <div class="empty-state">
+                <div class="empty-state-icon">✅</div>
+                <p>暂无待确认的操作</p>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-small" onclick="loadSecurityConfig()">
+            <span>🔄</span> 刷新状态
+          </button>
         </div>
-        
-        <p style="margin-top: 16px; color: #666; font-size: 0.9rem;">
-          当任务执行时，这里会显示 AI 看到的屏幕内容
-        </p>
+
+        <div class="panel">
+          <h2><span>📊</span> 安全统计</h2>
+
+          <div id="securityStats" class="stat-grid">
+            <div class="stat-card">
+              <div class="label">会话状态</div>
+              <div class="value">--</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">操作次数</div>
+              <div class="value">--</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">待确认</div>
+              <div class="value">--</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">速率限制</div>
+              <div class="value">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Task History -->
+    <div id="tab-history" class="tab-content">
+      <div class="panel full-width">
+        <h2><span>📊</span> 任务历史</h2>
+
+        <button class="btn btn-secondary btn-small" onclick="loadHistory()" style="margin-bottom: 20px;">
+          <span>🔄</span> 刷新历史
+        </button>
+
+        <div id="historyList" class="history-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <p>暂无任务历史</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h2>⚠️ 操作需要确认</h2>
+      <div id="confirmationDetails"></div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="closeConfirmationModal()">取消</button>
+        <button class="btn btn-danger" onclick="rejectConfirmation()">拒绝</button>
+        <button class="btn btn-success" onclick="approveConfirmation()">批准</button>
       </div>
     </div>
   </div>
@@ -313,7 +763,28 @@
   <script>
     let isRunning = false;
     let pollInterval = null;
-    
+    let currentConfirmationId = null;
+
+    // Tab Switching
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+
+      // Show selected tab
+      document.getElementById('tab-' + tabName).classList.add('active');
+      event.target.classList.add('active');
+
+      // Load data for specific tabs
+      if (tabName === 'skills') {
+        loadSkills();
+      } else if (tabName === 'security') {
+        loadSecurityConfig();
+      } else if (tabName === 'history') {
+        loadHistory();
+      }
+    }
+
     function log(type, message) {
       const container = document.getElementById('logContainer');
       const time = new Date().toLocaleTimeString();
@@ -323,63 +794,63 @@
       container.appendChild(entry);
       container.scrollTop = container.scrollHeight;
     }
-    
+
     function setExample(text) {
       document.getElementById('taskInput').value = text;
     }
-    
+
     function updateStatus(status, text) {
       const el = document.getElementById('status');
       el.className = 'status ' + status;
       const icons = { idle: '⚪', running: '🔵', complete: '🟢', error: '🔴' };
       el.innerHTML = `<span>${icons[status] || '⚪'}</span> ${text}`;
     }
-    
+
     async function startTask() {
       const task = document.getElementById('taskInput').value.trim();
       if (!task) {
         alert('请输入任务');
         return;
       }
-      
+
       try {
         const response = await fetch('/task', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ task })
         });
-        
+
         if (!response.ok) {
           const error = await response.json();
           throw new Error(error.error);
         }
-        
+
         isRunning = true;
         document.getElementById('startBtn').disabled = true;
         document.getElementById('stopBtn').style.display = 'inline-flex';
         updateStatus('running', '正在执行任务...');
         log('message', `开始任务: ${task}`);
-        
-        // 开始轮询状态
+
+        // Start polling
         pollInterval = setInterval(pollStatus, 1000);
-        
+
       } catch (error) {
         log('error', `错误: ${error.message}`);
         updateStatus('error', error.message);
       }
     }
-    
+
     async function pollStatus() {
       try {
         const response = await fetch('/task/status');
         const data = await response.json();
-        
+
         if (!data.running) {
           clearInterval(pollInterval);
           isRunning = false;
           document.getElementById('startBtn').disabled = false;
           document.getElementById('stopBtn').style.display = 'none';
-          
+
           if (data.lastTask?.result?.success) {
             updateStatus('complete', '任务完成');
             log('message', `✅ ${data.lastTask.result.summary}`);
@@ -391,30 +862,30 @@
           }
           return;
         }
-        
-        // 处理更新
+
+        // Handle updates
         if (data.updates && data.updates.length > 0) {
           const lastUpdate = data.updates[data.updates.length - 1];
-          
+
           if (lastUpdate.type === 'screenshot' && lastUpdate.screenshot) {
-            document.getElementById('screenshotContainer').innerHTML = 
+            document.getElementById('screenshotContainer').innerHTML =
               `<img src="data:image/png;base64,${lastUpdate.screenshot}" alt="Screen">`;
           }
-          
+
           if (lastUpdate.type === 'action') {
             log('action', `🔧 ${lastUpdate.tool}: ${JSON.stringify(lastUpdate.args)}`);
           }
-          
+
           if (lastUpdate.type === 'message') {
             log('message', `💬 ${lastUpdate.content}`);
           }
         }
-        
+
       } catch (error) {
         console.error('Poll error:', error);
       }
     }
-    
+
     async function stopTask() {
       try {
         await fetch('/task/stop', { method: 'POST' });
@@ -423,6 +894,249 @@
         log('error', `停止失败: ${error.message}`);
       }
     }
+
+    // Skills Management
+    async function loadSkills() {
+      try {
+        const response = await fetch('/skills');
+        const data = await response.json();
+
+        document.getElementById('skillCount').textContent = `已加载 ${data.count} 个技能`;
+
+        const container = document.getElementById('skillsList');
+
+        if (data.skills.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <p>暂无可用技能</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.skills.map(skill => `
+          <div class="skill-item">
+            <h3>${skill.name}</h3>
+            <p>${skill.description || '无描述'}</p>
+            <small style="color: #666;">${skill.path}</small>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Failed to load skills:', error);
+        document.getElementById('skillsList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p>加载失败: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Security Management
+    async function loadSecurityConfig() {
+      try {
+        const [statusRes, confirmationsRes] = await Promise.all([
+          fetch('/security/status'),
+          fetch('/security/confirmations')
+        ]);
+
+        const status = await statusRes.json();
+        const confirmations = await confirmationsRes.json();
+
+        // Update toggle
+        const toggle = document.getElementById('securityToggle');
+        if (status.enabled) {
+          toggle.classList.add('active');
+        } else {
+          toggle.classList.remove('active');
+        }
+
+        // Update stats
+        const statsContainer = document.getElementById('securityStats');
+        statsContainer.innerHTML = `
+          <div class="stat-card">
+            <div class="label">会话状态</div>
+            <div class="value">${status.sessionActive ? '活跃' : '未启动'}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">操作次数</div>
+            <div class="value">${status.operationCount}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">待确认</div>
+            <div class="value">${status.pendingConfirmations}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">速率限制</div>
+            <div class="value">${status.rateLimit.current}/${status.rateLimit.max}</div>
+          </div>
+        `;
+
+        // Update confirmations
+        const confirmContainer = document.getElementById('pendingConfirmations');
+        if (confirmations.confirmations.length === 0) {
+          confirmContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">✅</div>
+              <p>暂无待确认的操作</p>
+            </div>
+          `;
+        } else {
+          confirmContainer.innerHTML = confirmations.confirmations.map(c => `
+            <div class="config-item" style="flex-direction: column; align-items: flex-start;">
+              <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
+                <strong>${c.operation}</strong>
+                <span class="badge warning">待确认</span>
+              </div>
+              <pre style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; width: 100%; overflow-x: auto; font-size: 0.85rem;">${JSON.stringify(c.args, null, 2)}</pre>
+              <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="btn btn-success btn-small" onclick="confirmOperation('${c.id}')">批准</button>
+                <button class="btn btn-danger btn-small" onclick="rejectOperation('${c.id}')">拒绝</button>
+              </div>
+            </div>
+          `).join('');
+        }
+
+      } catch (error) {
+        console.error('Failed to load security config:', error);
+      }
+    }
+
+    async function toggleSecurityMode() {
+      const toggle = document.getElementById('securityToggle');
+      const enabled = !toggle.classList.contains('active');
+
+      try {
+        const response = await fetch('/security/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled })
+        });
+
+        if (response.ok) {
+          if (enabled) {
+            toggle.classList.add('active');
+          } else {
+            toggle.classList.remove('active');
+          }
+          loadSecurityConfig();
+        }
+      } catch (error) {
+        console.error('Failed to toggle security:', error);
+      }
+    }
+
+    async function confirmOperation(id) {
+      try {
+        const response = await fetch(`/security/confirm/${id}`, { method: 'POST' });
+        if (response.ok) {
+          loadSecurityConfig();
+        }
+      } catch (error) {
+        console.error('Failed to confirm:', error);
+      }
+    }
+
+    async function rejectOperation(id) {
+      try {
+        const response = await fetch(`/security/reject/${id}`, { method: 'POST' });
+        if (response.ok) {
+          loadSecurityConfig();
+        }
+      } catch (error) {
+        console.error('Failed to reject:', error);
+      }
+    }
+
+    // Task History
+    async function loadHistory() {
+      try {
+        const response = await fetch('/history');
+        const history = await response.json();
+
+        const container = document.getElementById('historyList');
+
+        if (history.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <p>暂无任务历史</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = history.reverse().map(item => {
+          const duration = item.endTime ? Math.round((item.endTime - item.startTime) / 1000) : 0;
+          const isSuccess = item.result?.success;
+          const resultClass = isSuccess ? 'success' : 'error';
+          const resultText = isSuccess
+            ? `✅ ${item.result.summary}`
+            : `❌ ${item.error || '执行失败'}`;
+
+          return `
+            <div class="history-item">
+              <div class="header">
+                <div class="task-text">${item.task}</div>
+                <div class="timestamp">${new Date(item.startTime).toLocaleString()}</div>
+              </div>
+              <div style="color: #888; font-size: 0.85rem; margin-bottom: 8px;">
+                执行时间: ${duration}秒 | 操作次数: ${item.result?.history?.length || 0}
+              </div>
+              <div class="result ${resultClass}">${resultText}</div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (error) {
+        console.error('Failed to load history:', error);
+        document.getElementById('historyList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p>加载失败: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Modal functions
+    function showConfirmationModal(confirmation) {
+      currentConfirmationId = confirmation.id;
+      document.getElementById('confirmationDetails').innerHTML = `
+        <p style="margin-bottom: 16px;">操作类型: <strong>${confirmation.operation}</strong></p>
+        <div class="operation">${JSON.stringify(confirmation.args, null, 2)}</div>
+      `;
+      document.getElementById('confirmationModal').classList.add('active');
+    }
+
+    function closeConfirmationModal() {
+      document.getElementById('confirmationModal').classList.remove('active');
+      currentConfirmationId = null;
+    }
+
+    async function approveConfirmation() {
+      if (currentConfirmationId) {
+        await confirmOperation(currentConfirmationId);
+        closeConfirmationModal();
+      }
+    }
+
+    async function rejectConfirmation() {
+      if (currentConfirmationId) {
+        await rejectOperation(currentConfirmationId);
+        closeConfirmationModal();
+      }
+    }
+
+    // Auto-refresh security status when on security tab
+    setInterval(() => {
+      const securityTab = document.getElementById('tab-security');
+      if (securityTab.classList.contains('active')) {
+        loadSecurityConfig();
+      }
+    }, 5000);
   </script>
 </body>
 </html>
