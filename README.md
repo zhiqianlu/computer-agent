@@ -84,10 +84,10 @@ The server will start on port 3200 (configurable via `PORT` environment variable
 ```
 🖥️  Computer Agent Server
 ========================
-端口: 3200
+Port: 3200
 Web UI: http://localhost:3200
-已加载 Skills: 0 个
-安全模式: 已启用 🔒
+Loaded Skills: 0
+Security Mode: Enabled 🔒
 ```
 
 ### Web Interface
