@@ -7,11 +7,14 @@ from flask_cors import CORS
 import os
 from datetime import datetime
 from pathlib import Path
+import threading
 
 app = Flask(__name__, static_folder='public', static_url_path='')
 CORS(app)
 
-# Global state
+# Global state with thread safety
+# Note: For production with multiple workers, use a proper database or cache
+_state_lock = threading.Lock()
 current_task = None
 task_history = []
 
@@ -39,15 +42,16 @@ def start_task():
     if not task:
         return jsonify({'error': 'Task is required'}), 400
     
-    if current_task:
-        return jsonify({'error': 'A task is already running'}), 409
-    
-    current_task = {
-        'task': task,
-        'startTime': datetime.now().timestamp() * 1000,
-        'updates': []
-    }
-    task_history = []
+    with _state_lock:
+        if current_task:
+            return jsonify({'error': 'A task is already running'}), 409
+        
+        current_task = {
+            'task': task,
+            'startTime': datetime.now().timestamp() * 1000,
+            'updates': []
+        }
+        task_history = []
     
     print(f'\n🚀 Starting task: {task}')
     
@@ -58,35 +62,39 @@ def start_task():
 @app.route('/task/status', methods=['GET'])
 def task_status():
     """Get current task status"""
-    if not current_task:
-        last_task = task_history[-1] if task_history else None
+    with _state_lock:
+        if not current_task:
+            last_task = task_history[-1] if task_history else None
+            return jsonify({
+                'running': False,
+                'lastTask': last_task
+            })
+        
         return jsonify({
-            'running': False,
-            'lastTask': last_task
+            'running': True,
+            'task': current_task['task'],
+            'startTime': current_task['startTime'],
+            'updates': current_task['updates'][-10:]  # Last 10 updates
         })
-    
-    return jsonify({
-        'running': True,
-        'task': current_task['task'],
-        'startTime': current_task['startTime'],
-        'updates': current_task['updates'][-10:]  # Last 10 updates
-    })
 
 @app.route('/task/stop', methods=['POST'])
 def stop_task():
     """Stop current task"""
     global current_task
     
-    if not current_task:
-        return jsonify({'error': 'No task running'}), 400
+    with _state_lock:
+        if not current_task:
+            return jsonify({'error': 'No task running'}), 400
+        
+        current_task['stopRequested'] = True
     
-    current_task['stopRequested'] = True
     return jsonify({'message': 'Stop requested'})
 
 @app.route('/history', methods=['GET'])
 def get_history():
     """Get task history"""
-    return jsonify(task_history)
+    with _state_lock:
+        return jsonify(task_history)
 
 # ===== Skills API =====
 
@@ -165,9 +173,22 @@ def update_security_config():
     """Update security configuration"""
     data = request.get_json()
     # In a real implementation, this would update config
+    # Get the config data directly instead of calling .json on response
+    config = {
+        'enabled': True,
+        'requireConfirmation': {
+            'enabled': True,
+            'operations': ['key_combo', 'type_text', 'open_app']
+        },
+        'blockedApps': ['cmd', 'powershell', 'regedit'],
+        'rateLimit': {
+            'enabled': True,
+            'maxOperationsPerMinute': 60
+        }
+    }
     return jsonify({
         'message': 'Config updated',
-        'config': get_security_config().json
+        'config': config
     })
 
 @app.route('/security/toggle', methods=['POST'])
@@ -236,7 +257,9 @@ API Endpoints:
   POST /security/reject/:id - Reject operation
     ''')
     
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Use debug mode only in development
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1', 'yes')
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
 
 if __name__ == '__main__':
     main()
