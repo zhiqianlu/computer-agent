@@ -5,12 +5,26 @@ Main application entry point
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
-from datetime import datetime
+import time
 from pathlib import Path
 import threading
 
 app = Flask(__name__, static_folder='public', static_url_path='')
 CORS(app)
+
+# Security configuration constants
+SECURITY_CONFIG = {
+    'enabled': True,
+    'requireConfirmation': {
+        'enabled': True,
+        'operations': ['key_combo', 'type_text', 'open_app']
+    },
+    'blockedApps': ['cmd', 'powershell', 'regedit'],
+    'rateLimit': {
+        'enabled': True,
+        'maxOperationsPerMinute': 60
+    }
+}
 
 # Global state with thread safety
 # Note: For production with multiple workers, use a proper database or cache
@@ -26,9 +40,11 @@ def index():
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
+    with _state_lock:
+        has_task = current_task is not None
     return jsonify({
         'status': 'ok',
-        'hasTask': current_task is not None
+        'hasTask': has_task
     })
 
 @app.route('/task', methods=['POST'])
@@ -48,7 +64,7 @@ def start_task():
         
         current_task = {
             'task': task,
-            'startTime': datetime.now().timestamp() * 1000,
+            'startTime': time.time() * 1000,
             'updates': []
         }
         task_history = []
@@ -146,49 +162,27 @@ def match_skills():
 @app.route('/security/status', methods=['GET'])
 def security_status():
     """Get security status"""
+    with _state_lock:
+        session_active = current_task is not None
     return jsonify({
-        'enabled': True,
-        'sessionActive': current_task is not None,
+        'enabled': SECURITY_CONFIG['enabled'],
+        'sessionActive': session_active,
         'pendingConfirmations': 0
     })
 
 @app.route('/security/config', methods=['GET'])
 def get_security_config():
     """Get security configuration"""
-    return jsonify({
-        'enabled': True,
-        'requireConfirmation': {
-            'enabled': True,
-            'operations': ['key_combo', 'type_text', 'open_app']
-        },
-        'blockedApps': ['cmd', 'powershell', 'regedit'],
-        'rateLimit': {
-            'enabled': True,
-            'maxOperationsPerMinute': 60
-        }
-    })
+    return jsonify(SECURITY_CONFIG)
 
 @app.route('/security/config', methods=['PATCH'])
 def update_security_config():
     """Update security configuration"""
     data = request.get_json()
-    # In a real implementation, this would update config
-    # Get the config data directly instead of calling .json on response
-    config = {
-        'enabled': True,
-        'requireConfirmation': {
-            'enabled': True,
-            'operations': ['key_combo', 'type_text', 'open_app']
-        },
-        'blockedApps': ['cmd', 'powershell', 'regedit'],
-        'rateLimit': {
-            'enabled': True,
-            'maxOperationsPerMinute': 60
-        }
-    }
+    # In a real implementation, this would update SECURITY_CONFIG
     return jsonify({
         'message': 'Config updated',
-        'config': config
+        'config': SECURITY_CONFIG
     })
 
 @app.route('/security/toggle', methods=['POST'])
