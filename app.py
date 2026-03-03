@@ -50,7 +50,7 @@ def health():
 @app.route('/task', methods=['POST'])
 def start_task():
     """Start a new task"""
-    global current_task, task_history
+    global current_task
     
     data = request.get_json()
     task = data.get('task')
@@ -67,7 +67,7 @@ def start_task():
             'startTime': time.time() * 1000,
             'updates': []
         }
-        task_history = []
+        task_history.clear()  # Clear history without reassignment
     
     print(f'\n🚀 Starting task: {task}')
     

@@ -51,6 +51,7 @@ npm start
 The Flask server can be configured using environment variables:
 
 - `PORT`: Server port (default: 3200)
+- `FLASK_DEBUG`: Enable debug mode (default: False). Set to 'true', '1', or 'yes' to enable. **Warning**: Never enable debug mode in production as it exposes sensitive information.
 
 ## API Endpoints
 
